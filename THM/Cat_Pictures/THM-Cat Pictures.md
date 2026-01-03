@@ -2,13 +2,13 @@
 ## Ennumeración
 
 1. Primero de todo vemos la conectividad haciendo un ping a la maquina victima 
-![[Ping.png]]
+![Ping](Img/Ping.png)
 Como podemos ver con el ttl nos enfrentamos a una máquina linux
 2. Ahora vamos a hacer el escaneo de puertos y servicios con nmap.
 ```bash
 nmap <IP> -p- --open -sS --min-rate 5000 -Pn -n -vvv -oG allports
 ```
-![[Nmap-allports.png]]
+![nmap-allports](Img/Nmap-allports.png)
 ```bash
 nmap <IP> -p22,4420,8080 -sCV -oN targeted
 ```
