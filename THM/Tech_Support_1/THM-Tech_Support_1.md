@@ -102,7 +102,7 @@ Al probar esta credencial con el usuario scamsite vemos que es esa la contraseñ
 
 Con el comando 'sudo -l' veo que puedo ejecutar como root el binario iconv que me permite ver archivos del sistema
 
-![sudo -l](Img/sudo%20-l.png)
+![sudo -l](Img/sudo-l.png)
 
 ![](Img/gtfobins.png)
 
