@@ -1,2 +1,2 @@
 # Writeups
-My writeups in the tryhackme & hackthebox plataform
+My writeups in the tryhackme & hackthebox plataform.
