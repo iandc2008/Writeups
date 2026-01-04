@@ -3,7 +3,7 @@
 
 Primero de todo vemos la conectividad haciendo un ping a la maquina victima 
 
-![Ping](Img/Ping.png)
+![Ping](Writeups/THM/Cat_Pictures/Img/Ping.png)
 
 Como podemos ver con el ttl nos enfrentamos a una máquina linux
 Ahora vamos a hacer el escaneo de puertos y servicios con nmap.
