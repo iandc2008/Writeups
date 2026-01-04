@@ -1,5 +1,10 @@
 # Cat Pictures THM
 
+### Description
+
+- Difficulty: easy
+- O.S: linux
+
 ### Enumeration
 
 First I checked the connection with a ping to the machine
