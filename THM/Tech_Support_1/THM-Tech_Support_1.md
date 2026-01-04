@@ -6,7 +6,7 @@
 
 Primero de todo hacemos un ping a la máquina para ver si tenemos conectividad y gracias al ttl vemos que es una maquina linux
 
-![Ping](Writeups/THM/Tech_Support_1/Img/ping.png)
+![Ping](Img/ping.png)
 
 ### Ennumeración de puertos
 
