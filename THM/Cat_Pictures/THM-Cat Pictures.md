@@ -11,7 +11,7 @@ First I checked the connection with a ping to the machine
 
 ![Ping](Img/Ping.png)
 
-Based on the ttl I know is a linux machine, nos I scan the ports and services of the machine with nmap.
+Based on the ttl I know is a linux machine, next step is scan the ports and services of the machine with nmap.
 
 ```bash
 nmap <IP> -p- --open -sS --min-rate 5000 -Pn -n -vvv -oG allports
