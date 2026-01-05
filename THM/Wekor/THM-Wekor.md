@@ -151,7 +151,7 @@ touch python
 echo '#!/bin/bash\n/bin/bash -p' >> python
 ```
 
-With this done I executed the bitcoin script and I become root
+With this done I executed the bitcoin script and I become root.
 
 ![](Img/root.png)
 
