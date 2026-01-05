@@ -10,11 +10,11 @@ First we add wekor.thm to the /etc/hosts file.
 
 ![Hosts](Img/hosts.png)
 
-To check if I have access to the machine I pinged onces to the domain name.
+To check if I have access to the machine I pinged once to the domain name.
 
 ![](Img/Ping.png)
 
-With the ttl I asume that I'm in front of a linux machine.
+With the ttl I assume that I'm in front of a linux machine.
 
 ### Port enumeration
 
@@ -63,11 +63,11 @@ The /it-next directory look like this:
 
 ### Exploitation
 
-I navigated to http://wekor.thm/it-next/it_cart.php and I see a cupon panel, I appliqued the ' or 1 = 1 -- - and show me this error.
+I navigated to http://wekor.thm/it-next/it_cart.php and I see a coupon panel, I applied the ' or 1 = 1 -- - and show me this error.
 
 ![](Img/coupon.png)
 
-To see is is vulnerable I captured the post request and I executed sqlmap.
+To see if is vulnerable I captured the post request and I executed sqlmap.
 
 ```bash
 sqlmap -r post.txt
@@ -157,6 +157,6 @@ With this done I executed the bitcoin script and I become root.
 
 ### Lessons learned
 
-- Web pages panel are often vulnerables to SQLI and can cause leak of sensitive data.
+- Web pages panel are often vulnerable to SQLI and can cause leak of sensitive data.
 - The use of not strong passwords can cause brute force attacks.
-- The use of relative rutes in script is a very dangerous and can cause a full root control.
+- The use of relative paths in script is a very dangerous and can cause a full root control.
