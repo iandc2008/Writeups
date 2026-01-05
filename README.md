@@ -1,2 +1,2 @@
 # Writeups
-My writeups in the tryhackme & hackthebox plataform.
+In this repository I show some machines that I compromised on any platforms.
