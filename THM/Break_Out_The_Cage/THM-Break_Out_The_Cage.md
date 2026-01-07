@@ -100,10 +100,14 @@ Looking thru the email backups I Found another vigenere password, I cracked with
 
 ![](Img/Vigenere-2.png)
 
-Now I have root access.
+Now I have root password and I can access to root user.
+
+```bash
+su root
+```
 
 ### Lessons learned
 
-- Vigenere cipher isn't secure.
+- Weak key in Vigenere cipher makes it insecure.
 - Anonymous FTP is a bad practice and can leak sensitive data.
 - Scripts with bad permissions are critical.
